@@ -54,10 +54,10 @@ public class RetroHue {
     }
 
     /**
-     * Convert a string containing Minecraft-style legacy codes (using '§') into a MiniMessage string.
+     * Convert a string containing Minecraft-style legacy codes (using '&#167;') into a MiniMessage string.
      *
      * @param content The raw text
-     * @returns The converted string
+     * @return The converted string
      */
     public String convertToMiniMessage(String content) {
         return convertToMiniMessage(content, '§');
@@ -66,9 +66,9 @@ public class RetroHue {
     /**
      * Convert a string containing Minecraft-style legacy codes into a MiniMessage string.
      *
-     * @param content         The raw text, possibly containing sequences like "§a" (or "{codeIdentifier}a") for colors/formats
-     * @param codeIdentifier  The character that precedes each legacy code (often '§', but some plugins use '&' or another marker)
-     * @return                A MiniMessage-compatible string, e.g. "<green>This is green <bold>and bold</bold></green>"
+     * @param content         The raw text, possibly containing sequences like "&#167;a" (or "{codeIdentifier}a") for colors/formats
+     * @param codeIdentifier  The character that precedes each legacy code (often '&#167;', but some plugins use '&amp;' or another marker)
+     * @return                A MiniMessage-compatible string, e.g. <code>&lt;green&gt;This is green &lt;bold&gt;and bold&lt;/bold&gt;&lt;/green&gt;</code>
      */
     public String convertToMiniMessage(String content, char codeIdentifier) {
         if (content == null || content.isEmpty()) {
@@ -136,10 +136,10 @@ public class RetroHue {
 
     /**
       * Converts a legacy color code to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
-      * By default, it uses the & color code prefix.
+      * By default, it uses the ampersand color code prefix.
       *
-      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&a</code>
-      * @returns The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&amp;</code>
+      * @return The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
       */
     public Optional<NamedTextColor> convertColorCode(String code) {
         return convertColorCode(code, '&');
@@ -148,9 +148,9 @@ public class RetroHue {
     /**
       * Converts a legacy color code (0-9 and A-F) to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
       *
-      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&a</code>
+      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&amp;a</code>
       * @param prefix The prefix of the code.
-      * @returns The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      * @return The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
       */
     public Optional<NamedTextColor> convertColorCode(String code, char prefix) {
         if (code.length() != 2 || code.charAt(0) != prefix) {
