@@ -1,12 +1,14 @@
 package org.winlogon.retrohue;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * RetroHue - Convert Minecraft legacy codes to MiniMessage
@@ -55,6 +57,7 @@ public class RetroHue {
      * Convert a string containing Minecraft-style legacy codes (using '§') into a MiniMessage string.
      *
      * @param content The raw text
+     * @returns The converted string
      */
     public String convertToMiniMessage(String content) {
         return convertToMiniMessage(content, '§');
@@ -132,7 +135,53 @@ public class RetroHue {
     }
 
     /**
-     * Wraps convertToMiniMessage(...) and returns a Component via MiniMessage.deserialize(...)
+      * Converts a legacy color code to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
+      * By default, it uses the & color code prefix.
+      *
+      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&a</code>
+      * @returns The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      */
+    public Optional<NamedTextColor> convertColorCode(String code) {
+        return convertColorCode(code, '&');
+    }
+
+    /**
+      * Converts a legacy color code to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
+      *
+      * @param code Code to convert. Should be only two characters for character and prefix, like <code>&a</code>
+      * @param prefix The prefix of the code.
+      * @returns The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      */
+    public Optional<NamedTextColor> convertColorCode(String code, char prefix) {
+        if (code.length() != 2 || code.charAt(0) != prefix) {
+            return Optional.empty();
+        }
+    
+        switch (code.charAt(1)) {
+            case '0': return Optional.of(NamedTextColor.BLACK);
+            case '1': return Optional.of(NamedTextColor.DARK_BLUE);
+            case '2': return Optional.of(NamedTextColor.DARK_GREEN);
+            case '3': return Optional.of(NamedTextColor.DARK_AQUA);
+            case '4': return Optional.of(NamedTextColor.DARK_PURPLE);
+            case '5': return Optional.of(NamedTextColor.DARK_RED);
+            case '6': return Optional.of(NamedTextColor.GOLD);
+            case '7': return Optional.of(NamedTextColor.GRAY);
+            case '8': return Optional.of(NamedTextColor.DARK_GRAY);
+            case '9': return Optional.of(NamedTextColor.BLUE);
+            case 'a': return Optional.of(NamedTextColor.GREEN);
+            case 'b': return Optional.of(NamedTextColor.AQUA);
+            case 'c': return Optional.of(NamedTextColor.RED);
+            case 'd': return Optional.of(NamedTextColor.LIGHT_PURPLE);
+            case 'e': return Optional.of(NamedTextColor.YELLOW);
+            case 'f': return Optional.of(NamedTextColor.WHITE);
+            default: return Optional.empty();
+        }
+    }
+
+    /**
+     * Converts a legacy-code formatted string into a {@link net.kyori.adventure.text.Component}
+     *
+     * @param content The raw content
      */
     public Component convertToComponent(String content) {
         var message = convertToMiniMessage(content);
