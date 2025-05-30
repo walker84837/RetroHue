@@ -8,6 +8,7 @@ class RetroHueTest {
         var rh = new RetroHue();
         var contents = "&aHello!";
         var miniMessageString = rh.convertToMiniMessage(contents, '&');
-        assertTrue(miniMessageString.equals("<green>Hello!"), "&a is <green> in MiniMessage.");
+        System.out.println("Message: " + miniMessageString);
+        assertTrue(miniMessageString.equals("<green>Hello!</green>"), "&a is <green> in MiniMessage.");
     }
 }
