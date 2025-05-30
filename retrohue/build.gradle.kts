@@ -1,6 +1,11 @@
 plugins {
     `java-library`
+    `maven-publish`
 }
+
+
+group = "org.winlogon.retrohue"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
