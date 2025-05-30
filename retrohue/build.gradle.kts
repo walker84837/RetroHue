@@ -19,9 +19,6 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation("net.kyori:adventure-api:4.21.0")
     testImplementation("net.kyori:adventure-text-minimessage:4.21.0")
-
-    api(libs.commons.math3)
-    implementation(libs.guava)
 }
 
 java {
