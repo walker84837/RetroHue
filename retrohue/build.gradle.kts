@@ -4,7 +4,7 @@ plugins {
 }
 
 
-group = "org.winlogon.retrohue"
+group = "org.winlogon"
 version = "0.1.0"
 
 repositories {
