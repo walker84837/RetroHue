@@ -146,7 +146,7 @@ public class RetroHue {
     }
 
     /**
-      * Converts a legacy color code to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
+      * Converts a legacy color code (0-9 and A-F) to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
       *
       * @param code Code to convert. Should be only two characters for character and prefix, like <code>&a</code>
       * @param prefix The prefix of the code.

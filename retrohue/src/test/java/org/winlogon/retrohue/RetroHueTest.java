@@ -1,6 +1,9 @@
 package org.winlogon.retrohue;
 
 import org.junit.jupiter.api.Test;
+
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class RetroHueTest {
@@ -8,7 +11,25 @@ class RetroHueTest {
         var rh = new RetroHue();
         var contents = "&aHello!";
         var miniMessageString = rh.convertToMiniMessage(contents, '&');
-        System.out.println("Message: " + miniMessageString);
-        assertTrue(miniMessageString.equals("<green>Hello!</green>"), "&a is <green> in MiniMessage.");
+        assertEquals("<green>Hello!</green>", miniMessageString);
+    }
+
+    @Test void testColorCodeConversion() {
+        var rh = new RetroHue();
+        var opt = rh.convertColorCode("&a", '&');
+        assert(opt.isPresent());
+        assertEquals(opt.get(), NamedTextColor.GREEN);
+    }
+
+    @Test void testColorCodeOfIncorrectLength() {
+        var rh = new RetroHue();
+        var opt = rh.convertColorCode("abc123", '&');
+        assert(opt.isEmpty());
+    }
+
+    @Test void testProvideInvalidColorCode() {
+        var rh = new RetroHue();
+        var opt = rh.convertColorCode("&p", '&');
+        assert(opt.isEmpty());
     }
 }
