@@ -1,4 +1,4 @@
-name: Publish Gradle artifacts to Gitea
+name: Publish RetroHue to GitHub
 
 on:
   push:
@@ -21,8 +21,9 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - name: Publish to Gitea Maven Registry
+      - name: Publish to GitHub Maven Registry
         env:
-          ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
         run: |
           ./gradlew publish --no-daemon --info

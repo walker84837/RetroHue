@@ -3,7 +3,6 @@ plugins {
     `maven-publish`
 }
 
-
 group = "org.winlogon"
 version = "0.1.0"
 
@@ -31,24 +30,21 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
-
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            groupId = "org.winlogon"
             artifactId = "retrohue"
         }
     }
     repositories {
         maven {
-            name = "Gitea"
-            url = uri("https://winlogon.ddns.net/api/packages/winlogon/maven")
-            authentication {
-                create("header", HttpHeaderAuthentication::class)
-            }
-            credentials(HttpHeaderCredentials::class) {
-                name = "Authorization"
-                value = "token ${System.getenv("ACTIONS_TOKEN")}"
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/walker84837/retrohue")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
