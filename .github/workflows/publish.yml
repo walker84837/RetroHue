@@ -23,5 +23,5 @@ jobs:
       - name: Publish to Package Registry
         run: ./gradlew publish --no-daemon --info
         env:
-          MAVEN_USER: ${{ secrets.MAVEN_USER }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

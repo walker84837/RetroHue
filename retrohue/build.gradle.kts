@@ -66,7 +66,7 @@ publishing {
             name = "winlogon-libs"
             url = uri("https://maven.winlogon.org/releases")
             credentials {
-                username = (project.findProperty("reposiliteUser") as String?) ?: System.getenv("MAVEN_USER")
+                username = (project.findProperty("reposiliteUser") as String?) ?: System.getenv("MAVEN_USERNAME")
                 password = (project.findProperty("reposilitePassword") as String?) ?: System.getenv("MAVEN_PASSWORD")
             }
         }
