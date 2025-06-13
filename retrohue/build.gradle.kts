@@ -36,15 +36,38 @@ publishing {
             from(components["java"])
             groupId = "org.winlogon"
             artifactId = "retrohue"
+            pom {
+                name = "RetroHue"
+                description = "Convert legacy ampersand color codes into MiniMessage tags"
+                url = "https://github.com/walker84837/RetroHue"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "walker84837"
+                        name = "winlogon"
+                        email = "walker84837@gmail.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/walker84837/RetroHue.git"
+                    developerConnection = "scm:git:ssh://github.com/walker84837/RetroHue.git"
+                    url = "https://github.com/walker84837/RetroHue"
+                }
+            }
         }
     }
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/walker84837/retrohue")
+            name = "winlogon-libs"
+            url = uri("https://maven.winlogon.org/releases")
             credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+                username = (project.findProperty("reposiliteUser") as String?) ?: System.getenv("MAVEN_USER")
+                password = (project.findProperty("reposilitePassword") as String?) ?: System.getenv("MAVEN_PASSWORD")
             }
         }
     }
