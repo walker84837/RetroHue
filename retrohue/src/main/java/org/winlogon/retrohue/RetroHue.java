@@ -2,6 +2,7 @@ package org.winlogon.retrohue;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.ArrayDeque;
@@ -51,6 +52,10 @@ public class RetroHue {
 
     public RetroHue(MiniMessage mm) {
         this.mm = mm;
+    }
+
+    public MiniMessage getMiniMessage() {
+        return this.mm;
     }
 
     /**
@@ -135,22 +140,22 @@ public class RetroHue {
     }
 
     /**
-      * Converts a legacy color code to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
+      * Converts a legacy color code to a {@link NamedTextColor}, if valid.
       * By default, it uses the ampersand color code prefix.
       *
       * @param code Code to convert. Should be only two characters for character and prefix, like <code>&amp;</code>
-      * @return The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      * @return The {@link NamedTextColor} if valid, or else nothing.
       */
     public Optional<NamedTextColor> convertColorCode(String code) {
         return convertColorCode(code, '&');
     }
 
     /**
-      * Converts a legacy color code (0-9 and A-F) to a {@link net.kyori.adventure.text.format.NamedTextColor}, if valid.
+      * Converts a legacy color code (0-9 and A-F) to a {@link NamedTextColor}, if valid.
       *
       * @param code Code to convert. Should be only two characters for character and prefix, like <code>&amp;a</code>
       * @param prefix The prefix of the code.
-      * @return The {@link net.kyori.adventure.text.format.NamedTextColor} if valid, or else nothing.
+      * @return The {@link NamedTextColor} if valid, or else nothing.
       */
     public Optional<NamedTextColor> convertColorCode(String code, char prefix) {
         if (code.length() != 2 || code.charAt(0) != prefix) {
@@ -179,12 +184,54 @@ public class RetroHue {
     }
 
     /**
-     * Converts a legacy-code formatted string into a {@link net.kyori.adventure.text.Component}
+     * Converts a hex color code to a {@link NamedTextColor}, if valid.
+     *
+     * @param hex Hex color code, like <code>#ff0000</code>
+     * @return The {@link NamedTextColor} if valid, or else nothing.
+     */
+    public Optional<NamedTextColor> getNamedColorFromHex(String hex) {
+        if (!seemsHexadecimal(hex) || isNullOrEmpty(hex)) {
+            return Optional.empty();
+        }
+
+        var textColorOpt = Optional.ofNullable(TextColor.fromHexString(hex));
+
+        if (textColorOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var nearestColor = NamedTextColor.nearestTo(textColorOpt.get());
+        return Optional.of(nearestColor);
+    }
+
+    private boolean seemsHexadecimal(String s) {
+        return s.startsWith("#") && s.length() == 7;
+    }
+
+    private boolean isNullOrEmpty(String s) {
+        return s == null || s.isEmpty();
+    }
+
+    /**
+     * Converts a legacy-code formatted string into a MiniMessage string, and then into a {@link Component}, with a section character identifier
      *
      * @param content The raw content
+     * @return The converted string
      */
     public Component convertToComponent(String content) {
         var message = convertToMiniMessage(content);
+        return this.mm.deserialize(message);
+    }
+
+    /**
+     * Converts a legacy-code formatted string into a MiniMessage string, and then into a {@link Component}, given a starting code character identifier
+     *
+     * @param content The raw content
+     * @param codeIdentifier The character that precedes each legacy code (often '&#167;', but some plugins use '&amp;' or another marker)
+     * @return The converted string
+     */
+    public Component convertToComponent(String content, char codeIdentifier) {
+        var message = convertToMiniMessage(content, codeIdentifier);
         return this.mm.deserialize(message);
     }
 }
