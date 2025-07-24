@@ -54,6 +54,11 @@ public class RetroHue {
         this.mm = mm;
     }
 
+    /**
+      * Gets the internal MiniMessage instance used for serialization and deserialization.
+      *
+      * @return The internal {@link MiniMessage} instance used by this RetroHue.
+      */
     public MiniMessage getMiniMessage() {
         return this.mm;
     }
