@@ -53,10 +53,26 @@ colorOpt.ifPresent(c -> System.out.println("Color: " + c.name()));
 
 ## Why RetroHue?
 
+TL;DR:
+
 * Predictable behavior
-* Instantly adapt existing configs or user input that use legacy color codes.
-* Standardize your text processing by converting all legacy codes at once.
-* Use rich formatting and deserialization while preserving legacy styles.
+* Instantly adapt existing configs or user input that use legacy color codes
+* Standardize your text processing by converting all legacy codes at once
+* Use rich formatting and deserialization while preserving legacy styles
+
+Backstory & Motivation:
+
+While working on my plugins, I decided to add support for legacy color codes and MiniMessage tags in configuration files. Using Adventure's component serializers seemed like the most modern approach.
+
+The process worked like this:
+
+1. Pass a string (e.g., from a config) to the legacy component serializer, which converts legacy-formatted text into a component.
+2. Use the MiniMessage parser to convert that component into a MiniMessage-formatted string.
+3. Deserialize the MiniMessage string back into a component, now containing the converted color codes.
+
+However, I ran into an issue: valid MiniMessage tags were being escaped by the deserializer. A quick fix would be to replace `\<` and `\>` with `<` and `>`, but that's brittle and relies on internal behavior.
+
+Instead, I decided to roll my own parser to convert legacy codes to MiniMessage tags. To make this reusable, I extracted the logic into a small, modular library that I now use across all my plugins.
 
 ## Installation
 
