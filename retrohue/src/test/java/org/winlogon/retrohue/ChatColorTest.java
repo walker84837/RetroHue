@@ -52,20 +52,24 @@ class ChatColorTest {
     @DisplayName("getLastColors() should return last color codes correctly")
     void testGetLastColors() {
         String input = "§aHello §bWorld §lBold";
+        String expected = org.bukkit.ChatColor.getLastColors(input);
         String result = ChatColor.getLastColors(input);
-        assertEquals("§l", result);
+        assertEquals(expected, result);
 
         input = "§aGreen text §lBold now";
         result = ChatColor.getLastColors(input);
-        assertEquals("§l", result);
+        expected = org.bukkit.ChatColor.getLastColors(input);
+        assertEquals(expected, result);
 
         input = "§aGreen §bBlue";
         result = ChatColor.getLastColors(input);
-        assertEquals("§b", result);
+        expected = org.bukkit.ChatColor.getLastColors(input);
+        assertEquals(expected, result);
 
         input = "Hello plain text";
         result = ChatColor.getLastColors(input);
-        assertEquals("", result);
+        expected = org.bukkit.ChatColor.getLastColors(input);
+        assertEquals(expected, result);
     }
 
     @Test
