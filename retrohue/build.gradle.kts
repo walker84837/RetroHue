@@ -8,6 +8,11 @@ version = "0.1.1"
 
 repositories {
     mavenCentral()
+
+    maven {
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
 }
 
 dependencies {
@@ -17,6 +22,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation("net.kyori:adventure-api:4.21.0")
+    testImplementation("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     testImplementation("net.kyori:adventure-text-minimessage:4.21.0")
 }
 
