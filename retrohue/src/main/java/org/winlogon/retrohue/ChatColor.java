@@ -12,12 +12,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
  * Backported version of Bukkit's {@code ChatColor}.
- *
+ * <p>
  * This enum represents legacy Minecraft color and formatting codes and provides
- * utilities to work with legacy-coded strings. It is compatible with legacy color
- * codes (the section sign '&#167;' followed by a code character) and integrates with
- * RetroHue for conversions between legacy-coded strings and Adventure's
- * {@link Component}/{@code MiniMessage} representations.
+ * utilities to work with legacy-coded strings.
+ * <p>
+ * It is compatible with legacy color codes (the section sign '&#167;' followed
+ * by a code character) and integrates with RetroHue for conversions between
+ * legacy-coded strings and Adventure's {@link Component}/{@code MiniMessage} representations.
  *
  * @see <a href="https://jd.papermc.io/paper/1.21.10/org/bukkit/ChatColor.html">org.bukkit.ChatColor</a>
  */
@@ -128,7 +129,7 @@ public enum ChatColor {
     /**
      * Translates alternate color code identifiers (for example '&amp;') to the legacy
      * section sign {@code '&#167;'} codes, but only when followed by a valid code char.
-     *
+     * <p>
      * <i>This method preserves characters that are not valid legacy code sequences.</i>
      *
      * @param identifier alternate identifier to translate (e.g. '&amp;')
@@ -203,19 +204,19 @@ public enum ChatColor {
 
     /**
      * Returns the legacy color/formatting suffixes that are active at the end of the provided input string.
-     *
+     * <p>
      * The returned string is a concatenation of two-character * legacy codes (e.g. "&#167;a&#167;l")
      * representing the last encountered color/formatting codes in forward order. If none are found,
      * returns an empty string.
      *
-     * @param input string to inspect (may be {@code null})
+     * @param input string to inspect (can be {@code null})
      * @return trailing legacy codes as a string starting with '&#167;', or empty string
      */
     public static String getLastColors(String input) {
         if (input == null || input.isEmpty()) return "";
 
         int len = input.length();
-        // use a small fixed-size array; avoids stringbuilder inserts
+        // Use a small fixed-size array - avoids StringBuilder inserts
         var found = new ChatColor[16];
         int index = 0;
 
@@ -245,7 +246,7 @@ public enum ChatColor {
 
     /**
      * Converts a legacy-coded string into an Adventure {@link Component}.
-     *
+     * <p>
      * The conversion uses the internal {@link RetroHue} instance to first translate
      * legacy codes into MiniMessage format and then deserialize that MiniMessage into
      * an Adventure {@code Component}.
@@ -285,6 +286,41 @@ public enum ChatColor {
             case YELLOW -> Optional.of(NamedTextColor.YELLOW);
             case WHITE -> Optional.of(NamedTextColor.WHITE);
             default -> Optional.empty();
+        };
+    }
+
+    /**
+     * Returns the MiniMessage tag for this ChatColor constant.
+     * For color constants, returns the opening tag (e.g., {@code <red>}).
+     * For formatting constants, returns the formatting tag (e.g., {@code <bold>}).
+     * For RESET, returns {@code <reset>}.
+     *
+     * @return the MiniMessage tag string
+     */
+    public String toMiniMessageTag() {
+        return switch (this) {
+            case BLACK -> "<black>";
+            case DARK_BLUE -> "<dark_blue>";
+            case DARK_GREEN -> "<dark_green>";
+            case DARK_AQUA -> "<dark_aqua>";
+            case DARK_RED -> "<dark_red>";
+            case DARK_PURPLE -> "<dark_purple>";
+            case GOLD -> "<gold>";
+            case GRAY -> "<gray>";
+            case DARK_GRAY -> "<dark_gray>";
+            case BLUE -> "<blue>";
+            case GREEN -> "<green>";
+            case AQUA -> "<aqua>";
+            case RED -> "<red>";
+            case LIGHT_PURPLE -> "<light_purple>";
+            case YELLOW -> "<yellow>";
+            case WHITE -> "<white>";
+            case MAGIC -> "<obfuscated>";
+            case BOLD -> "<bold>";
+            case STRIKETHROUGH -> "<strikethrough>";
+            case UNDERLINE -> "<underlined>";
+            case ITALIC -> "<italic>";
+            case RESET -> "<reset>";
         };
     }
 

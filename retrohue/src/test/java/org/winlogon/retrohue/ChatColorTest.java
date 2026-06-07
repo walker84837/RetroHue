@@ -91,13 +91,9 @@ class ChatColorTest {
 
     @Test
     @DisplayName("translateAlternateColorCodes() should replace & with section")
-    void testTranslateAlternateColorCodes() throws Exception {
-        // Using reflection since the method is private
-        var method = ChatColor.class.getDeclaredMethod("translateAlternateColorCodes", char.class, String.class);
-        method.setAccessible(true);
-
+    void testTranslateAlternateColorCodes() {
         String input = "&aHello &bWorld";
-        String output = (String) method.invoke(null, '&', input);
+        String output = ChatColor.translateAlternateColorCodes('&', input);
 
         assertEquals("§aHello §bWorld", output);
     }
