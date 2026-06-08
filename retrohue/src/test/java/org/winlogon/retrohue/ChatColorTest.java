@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("deprecation")
 class ChatColorTest {
     @Test
     @DisplayName("toString() should return section character followed by code")
