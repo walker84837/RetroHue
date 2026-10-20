@@ -107,14 +107,15 @@ public class RetroHue {
         }
 
         var result = new StringBuilder();
-        // We keep a stack of open tags so that we can close them in reverse order
-        // Whenever a color code appears, we pop any active color first
-        // Whenever a format code appears, we push its tag onto the stack (unless already present)
-        // On reset ('r'), we close everything in reverse order
+        // We keep a stack of open tags so that we can close them in reverse order.
+        // Every tag we emit opens a scope *inside* the scopes already on the stack, so the
+        // emitted markup is always properly nested: on reset ('r') and at the end of the
+        // content we close everything in reverse order.
+        //
+        // A color code therefore never closes the previous color: doing so would cross any
+        // format tag opened after it (e.g. "&3&n" -> "</dark_aqua>" while "<underlined>" is
+        // still open), and MiniMessage renders unmatched closing tags as literal text.
         Deque<String> openTags = new ArrayDeque<>();
-
-        // Tracks the current active color so we know which tag to close when a new color appears
-        String currentColorTag = null;
 
         for (int i = 0; i < content.length(); i++) {
             var c = content.charAt(i);
@@ -144,19 +145,11 @@ public class RetroHue {
                 String hexColor = parseHexColor(content, i + 1, codeIdentifier);
                 if (hexColor != null) {
 
-                    // A new color replaces the currently active color, but
-                    // leaves any active formatting tags (bold, italic, etc.) intact
-                    if (currentColorTag != null) {
-                        result.append("</").append(currentColorTag).append(">");
-                        if (!openTags.isEmpty() && openTags.peek().equals(currentColorTag)) {
-                            openTags.pop();
-                        }
-                    }
-
-                    // Open the new color tag and make it the active color state
-                    currentColorTag = "#" + hexColor;
-                    result.append("<").append(currentColorTag).append(">");
-                    openTags.push(currentColorTag);
+                    // Open the new color tag. It nests inside the color scope that is still
+                    // open, so the new color simply overrides it for the following content.
+                    String hexTag = "#" + hexColor;
+                    result.append("<").append(hexTag).append(">");
+                    openTags.push(hexTag);
 
                     // Skip over the characters that form the hex color so they
                     // are not processed again by the main loop
@@ -178,18 +171,12 @@ public class RetroHue {
                 }
             }
 
-            // Standard color code: replace the current color while preserving
-            // any non-color formatting already applied
+            // Standard color code: the new color overrides the active one for the
+            // following content, while any active formatting tags stay intact
             if (COLOR_MAP.containsKey(codeChar)) {
-                if (currentColorTag != null) {
-                    result.append("</").append(currentColorTag).append(">");
-                    if (!openTags.isEmpty() && openTags.peek().equals(currentColorTag)) {
-                        openTags.pop();
-                    }
-                }
-                currentColorTag = COLOR_MAP.get(codeChar);
-                result.append("<").append(currentColorTag).append(">");
-                openTags.push(currentColorTag);
+                String colorTag = COLOR_MAP.get(codeChar);
+                result.append("<").append(colorTag).append(">");
+                openTags.push(colorTag);
 
             // Formatting codes (bold, italic, underline, etc.) stack on top of
             // existing formatting instead of replacing it
@@ -211,7 +198,6 @@ public class RetroHue {
                     String tagToClose = openTags.pop();
                     result.append("</").append(tagToClose).append(">");
                 }
-                currentColorTag = null;
             // Unknown code sequence; preserve it literally in the output
             } else {
                 result.append(c).append(codeChar);

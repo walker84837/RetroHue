@@ -6,9 +6,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -108,16 +113,16 @@ class RetroHueTest {
         var rh = new RetroHue();
         var input = "§#ff0000Red §x§f§f§0§0§0§0AlsoRed";
         var result = rh.convertToMiniMessage(input);
-        assertEquals("<#ff0000>Red </#ff0000><#ff0000>AlsoRed</#ff0000>", result);
+        assertEquals("<#ff0000>Red <#ff0000>AlsoRed</#ff0000></#ff0000>", result);
     }
 
     @Test
-    @DisplayName("convertToMiniMessage() should close previous color before opening hex color")
-    void testHexColorClosesPreviousColor() {
+    @DisplayName("convertToMiniMessage() should nest a new color inside the previous one")
+    void testHexColorNestsInsidePreviousColor() {
         var rh = new RetroHue();
         var input = "&aGreen &#ff0000Red";
         var result = rh.convertToMiniMessage(input, '&');
-        assertEquals("<green>Green </green><#ff0000>Red</#ff0000>", result);
+        assertEquals("<green>Green <#ff0000>Red</#ff0000></green>", result);
     }
 
     @Test
@@ -263,5 +268,88 @@ class RetroHueTest {
         // Escapes enabled by default
         var escapeResult = rh.convertToMiniMessage("&&aHello", '&');
         assertEquals("&aHello", escapeResult);
+    }
+
+    // --- Nesting Tests ---
+
+    /** A LuckPerms-style prefix whose color changes while a format code is still active.
+     *
+     * The old implementation closed the previous color inline, which crossed the still-open
+     * format tag; MiniMessage renders such a closing tag as literal text.
+     */
+    @Test
+    @DisplayName("convertToMiniMessage() should keep a color change from crossing an open format tag")
+    void testColorChangeDoesNotCrossFormatTag() {
+        var rh = new RetroHue();
+        var result = rh.convertToMiniMessage("&8[&3&nOwner&8]&r", '&');
+        assertEquals(
+            "<dark_gray>[<dark_aqua><underlined>Owner<dark_gray>]</dark_gray></underlined></dark_aqua></dark_gray>",
+            result
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "&8[&3&nOwner&8]&r",
+        "&3&n[Owner]&3",
+        "&8[&3&nOwner&8]",
+        "&n&3&nOwner&8rest",
+        "&aGreen &cRed",
+        "&lBold&3color",
+        "&#ff0000&lBold&r Plain"
+    })
+    @DisplayName("convertToMiniMessage() should emit properly nested tags")
+    void testConvertedMarkupIsProperlyNested(String input) {
+        var rh = new RetroHue();
+        var result = rh.convertToMiniMessage(input, '&');
+        assertTagsAreNested(result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"&8[&3&nOwner&8]&r", "&3&n[Owner]&3"})
+    @DisplayName("convertToMiniMessage() should not leave stray closing tags in the parsed component")
+    void testConvertedMarkupHasNoStrayTags(String input) {
+        var rh = new RetroHue();
+        var result = rh.convertToMiniMessage(input, '&');
+        var component = MiniMessage.miniMessage().deserialize(result);
+        assertNoStrayTags(component);
+    }
+
+    @Test
+    @DisplayName("convertToMiniMessage() should keep format codes active across a color change")
+    void testFormatSurvivesColorChange() {
+        var rh = new RetroHue();
+        var result = rh.convertToMiniMessage("&3&nOwner&8rest", '&');
+        assertEquals("<dark_aqua><underlined>Owner<dark_gray>rest</dark_gray></underlined></dark_aqua>", result);
+    }
+
+    /** Asserts that every closing tag closes the innermost open tag.
+     *
+     * MiniMessage renders a closing tag that matches nothing as literal text, so crossing tags
+     * are visible to the player as stray markup.
+     */
+    private static void assertTagsAreNested(String miniMessage) {
+        var stack = new ArrayDeque<String>();
+        var matcher = Pattern.compile("<(/?)([a-zA-Z0-9_#]+)>").matcher(miniMessage);
+        while (matcher.find()) {
+            var name = matcher.group(2);
+            if (matcher.group(1).equals("/")) {
+                assertFalse(stack.isEmpty(), "Unmatched closing tag </" + name + "> in: " + miniMessage);
+                assertEquals(name, stack.pop(), "Crossing closing tag </" + name + "> in: " + miniMessage);
+            } else {
+                stack.push(name);
+            }
+        }
+        assertTrue(stack.isEmpty(), "Unclosed tags " + stack + " in: " + miniMessage);
+    }
+
+    /** Asserts that no part of the parsed component is literal tag markup. */
+    private static void assertNoStrayTags(Component component) {
+        if (component instanceof TextComponent text) {
+            assertFalse(text.content().contains("</"), "Stray tag markup in: " + text.content());
+        }
+        for (var child : component.children()) {
+            assertNoStrayTags(child);
+        }
     }
 }
